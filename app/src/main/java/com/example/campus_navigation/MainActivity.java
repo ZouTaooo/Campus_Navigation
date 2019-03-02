@@ -41,25 +41,24 @@ import com.baidu.mapapi.walknavi.params.WalkNaviLaunchParam;
 
 public class MainActivity extends AppCompatActivity {
 
-
     private static final String TAG = "MainActivity";
 
     //是否是第一次定位
     private boolean isFirstLoc = true;
 
-    private PoiSearch mPoiSearch;
+    //private PoiSearch mPoiSearch;
 
     private BaiduMap mBaiduMap;
 
     private MapView mMapView = null;
 
-    private WalkNavigateHelper walkNavigateHelper;
+    //private WalkNavigateHelper walkNavigateHelper;
 
     private BikeNavigateHelper bikeNavigateHelper;
 
     private LocationClient mLocationClient;
 
-    private  LatLng latLng;
+    private  LatLng myLoc;
 
     private BaiduMap.OnMapLongClickListener mapLongClickListener = new BaiduMap.OnMapLongClickListener() {
         @Override
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 public void engineInitSuccess() {
                     Log.e(TAG, "engineInitSuccess: ");
                     //起终点位置
-                    LatLng startPt = new LatLng(30.756461, 103.93483);
+                    LatLng startPt = myLoc;
                     LatLng endPt = latLng;
                     //构造WalkNaviLaunchParam
                     BikeNaviLaunchParam mParam = new BikeNaviLaunchParam().stPt(startPt).endPt(endPt);
@@ -101,8 +100,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(TAG, "engineInitFail: ");
                 }
             });
-
-
 //             获取导航控制类
 //             引擎初始化
 //            walkNavigateHelper = WalkNavigateHelper.getInstance();
@@ -133,11 +130,11 @@ public class MainActivity extends AppCompatActivity {
         public boolean onMapPoiClick(MapPoi mapPoi) {
             Intent intent = new Intent(MainActivity.this, PanoramaViewActivity.class);
             intent.putExtra("PoiUid", mapPoi.getUid());
+            intent.putExtra("PoiName", mapPoi.getName());
             startActivity(intent);
             return false;
         }
     };
-
 
 //    private void routeWalkPlanWithParam(LatLng latLng, WalkNavigateHelper walkNavigateHelper) {
 //        Log.e(TAG, "routeWalkPlanWithParam: 开始算路");
@@ -195,8 +192,6 @@ public class MainActivity extends AppCompatActivity {
 //
 //        }
 //    };
-
-
     public class MyLocationListener extends BDAbstractLocationListener {
         @Override
         public void onReceiveLocation(BDLocation location) {
@@ -211,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                     .latitude(location.getLatitude())
                     .longitude(location.getLongitude())
                     .build();
-            latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            myLoc = new LatLng(location.getLatitude(), location.getLongitude());
             Log.e(TAG, "onReceiveLocation: Longitude: " + location.getLongitude() + "Latitude: " + location.getLatitude() + "error: " + location.getLocType());
             mBaiduMap.setMyLocationData(locData);
 
@@ -235,8 +230,6 @@ public class MainActivity extends AppCompatActivity {
                 //改变地图状态
                 mBaiduMap.setMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
             }
-
-
         }
 
         @Override
@@ -246,22 +239,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("校园地图");
 
         //获取地图控件引用
         mMapView = (MapView) findViewById(R.id.bmapView);
         mBaiduMap = mMapView.getMap();
+
         //普通地图 ,mBaiduMap是地图控制器对象
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
         mBaiduMap.setOnMapClickListener(mapClickListener);
         mBaiduMap.setOnMapLongClickListener(mapLongClickListener);
-
-
         mBaiduMap.setMyLocationEnabled(true);
+
         //定位初始化
         mLocationClient = new LocationClient(this);
 
@@ -278,11 +271,8 @@ public class MainActivity extends AppCompatActivity {
         MyLocationListener myLocationListener = new MyLocationListener();
         mLocationClient.registerLocationListener(myLocationListener);
 
-
         //开启地图定位图层
         mLocationClient.start();
-
-
     }
 
 //    private void PoiSearch() {
@@ -296,7 +286,6 @@ public class MainActivity extends AppCompatActivity {
 //                .pageNum(10));
 //        Log.e(TAG, "PoiSearch: 3");
 //    }
-
     @Override
     protected void onResume() {
         //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
@@ -317,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
         mBaiduMap.setMyLocationEnabled(false);
         mMapView.onDestroy();
         mMapView = null;
-        mPoiSearch.destroy();
+        //mPoiSearch.destroy();
         super.onDestroy();
     }
 

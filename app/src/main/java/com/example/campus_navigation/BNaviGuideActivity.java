@@ -14,6 +14,7 @@ public class BNaviGuideActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bnavi_guide);
+        setTitle("导航");
         //获取BikeNavigateHelper示例
         mNaviHelper = BikeNavigateHelper.getInstance();
 // 获取诱导页面地图展示View
