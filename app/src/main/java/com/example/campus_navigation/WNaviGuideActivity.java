@@ -2,6 +2,7 @@ package com.example.campus_navigation;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.baidu.mapapi.walknavi.WalkNavigateHelper;
@@ -10,6 +11,7 @@ public class WNaviGuideActivity extends AppCompatActivity {
 
     private WalkNavigateHelper mNaviHelper;
 
+    private static final String TAG = "WNaviGuideActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +20,7 @@ public class WNaviGuideActivity extends AppCompatActivity {
         //获取WalkNavigateHelper实例
         mNaviHelper = WalkNavigateHelper.getInstance();
         //获取诱导页面地图展示View
+        Log.e(TAG, "onCreate: onCreate" );
         View view = mNaviHelper.onCreate(WNaviGuideActivity.this);
         if (view != null) {
             setContentView(view);

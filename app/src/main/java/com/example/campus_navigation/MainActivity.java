@@ -34,6 +34,7 @@ import com.baidu.mapapi.search.poi.PoiIndoorResult;
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
 import com.baidu.mapapi.walknavi.WalkNavigateHelper;
+import com.baidu.mapapi.walknavi.adapter.IWEngineInitListener;
 import com.baidu.mapapi.walknavi.adapter.IWRoutePlanListener;
 import com.baidu.mapapi.walknavi.model.WalkRoutePlanError;
 import com.baidu.mapapi.walknavi.params.WalkNaviLaunchParam;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MapView mMapView = null;
 
-    //private WalkNavigateHelper walkNavigateHelper;
+    private WalkNavigateHelper walkNavigateHelper;
 
     private BikeNavigateHelper bikeNavigateHelper;
 
