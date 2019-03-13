@@ -25,6 +25,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"

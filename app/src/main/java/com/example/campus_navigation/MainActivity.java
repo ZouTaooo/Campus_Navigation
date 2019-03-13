@@ -1,7 +1,9 @@
 package com.example.campus_navigation;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -24,15 +26,6 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.search.core.PoiDetailInfo;
-import com.baidu.mapapi.search.core.PoiInfo;
-import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
-import com.baidu.mapapi.search.poi.PoiCitySearchOption;
-import com.baidu.mapapi.search.poi.PoiDetailResult;
-import com.baidu.mapapi.search.poi.PoiDetailSearchResult;
-import com.baidu.mapapi.search.poi.PoiIndoorResult;
-import com.baidu.mapapi.search.poi.PoiResult;
-import com.baidu.mapapi.search.poi.PoiSearch;
 import com.baidu.mapapi.walknavi.WalkNavigateHelper;
 import com.baidu.mapapi.walknavi.adapter.IWEngineInitListener;
 import com.baidu.mapapi.walknavi.adapter.IWRoutePlanListener;
@@ -59,67 +52,73 @@ public class MainActivity extends AppCompatActivity {
 
     private LocationClient mLocationClient;
 
-    private  LatLng myLoc;
+    private LatLng myLoc;
 
     private BaiduMap.OnMapLongClickListener mapLongClickListener = new BaiduMap.OnMapLongClickListener() {
         @Override
         public void onMapLongClick(final LatLng latLng) {
             Log.e(TAG, "onMapClick: 长按");
-            bikeNavigateHelper = BikeNavigateHelper.getInstance();
-            bikeNavigateHelper.initNaviEngine(MainActivity.this, new IBEngineInitListener() {
-                @Override
-                public void engineInitSuccess() {
-                    Log.e(TAG, "engineInitSuccess: ");
-                    //起终点位置
-                    LatLng startPt = myLoc;
-                    LatLng endPt = latLng;
-                    //构造WalkNaviLaunchParam
-                    BikeNaviLaunchParam mParam = new BikeNaviLaunchParam().stPt(startPt).endPt(endPt);
-                    bikeNavigateHelper.routePlanWithParams(mParam, new IBRoutePlanListener() {
-                        @Override
-                        public void onRoutePlanStart() {
-                            Log.e(TAG, "onRoutePlanStart: ");
-                        }
-
-                        @Override
-                        public void onRoutePlanSuccess() {
-                            //算路成功
-                            //跳转至诱导页面
-                            Intent intent = new Intent(MainActivity.this, BNaviGuideActivity.class);
-                            startActivity(intent);
-                        }
-
-                        @Override
-                        public void onRoutePlanFail(BikeRoutePlanError bikeRoutePlanError) {
-                            Log.e(TAG, "onRoutePlanFail: ");
-                        }
-                    });
-                }
-
-                @Override
-                public void engineInitFail() {
-                    Log.e(TAG, "engineInitFail: ");
-                }
-            });
-//             获取导航控制类
-//             引擎初始化
-//            walkNavigateHelper = WalkNavigateHelper.getInstance();
-//            walkNavigateHelper.initNaviEngine(MainActivity.this, new IWEngineInitListener() {
-//
-//                @Override
-//                public void engineInitSuccess() {
-//                    //引擎初始化成功的回调
-//                    Log.e(TAG, "engineInitSuccess: 初始化成功");
-//                    routeWalkPlanWithParam(latLng, walkNavigateHelper);
-//                }
-//
-//                @Override
-//                public void engineInitFail() {
-//                    //引擎初始化失败的回调
-//                }
-//            });
+            showListDialog(latLng);
         }
     };
+
+    private void startWalkNavigation(final LatLng latLng) {
+        //             获取导航控制类
+//             引擎初始化
+        walkNavigateHelper = WalkNavigateHelper.getInstance();
+        walkNavigateHelper.initNaviEngine(MainActivity.this, new IWEngineInitListener() {
+            @Override
+            public void engineInitSuccess() {
+                //引擎初始化成功的回调
+                Log.e(TAG, "engineInitSuccess: 初始化成功");
+                routeWalkPlanWithParam(latLng, walkNavigateHelper);
+            }
+
+            @Override
+            public void engineInitFail() {
+                //引擎初始化失败的回调
+            }
+        });
+    }
+
+    private void startBikeNavigation(final LatLng latLng) {
+        bikeNavigateHelper = BikeNavigateHelper.getInstance();
+        bikeNavigateHelper.initNaviEngine(MainActivity.this, new IBEngineInitListener() {
+            @Override
+            public void engineInitSuccess() {
+                Log.e(TAG, "engineInitSuccess: ");
+                //起终点位置
+                LatLng startPt = myLoc;
+                LatLng endPt = latLng;
+                //构造WalkNaviLaunchParam
+                BikeNaviLaunchParam mParam = new BikeNaviLaunchParam().stPt(startPt).endPt(endPt);
+                bikeNavigateHelper.routePlanWithParams(mParam, new IBRoutePlanListener() {
+                    @Override
+                    public void onRoutePlanStart() {
+                        Log.e(TAG, "onRoutePlanStart: ");
+                    }
+
+                    @Override
+                    public void onRoutePlanSuccess() {
+                        //算路成功
+                        //跳转至诱导页面
+                        Intent intent = new Intent(MainActivity.this, BNaviGuideActivity.class);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onRoutePlanFail(BikeRoutePlanError bikeRoutePlanError) {
+                        Log.e(TAG, "onRoutePlanFail: ");
+                    }
+                });
+            }
+
+            @Override
+            public void engineInitFail() {
+                Log.e(TAG, "engineInitFail: ");
+            }
+        });
+    }
 
     //点击回调接口
     private BaiduMap.OnMapClickListener mapClickListener = new BaiduMap.OnMapClickListener() {
@@ -137,62 +136,35 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-//    private void routeWalkPlanWithParam(LatLng latLng, WalkNavigateHelper walkNavigateHelper) {
-//        Log.e(TAG, "routeWalkPlanWithParam: 开始算路");
-//        //起终点位置
-//        LatLng startPt = new LatLng(30.756461, 103.93483);
-//        LatLng endPt = latLng;
-//        //构造WalkNaviLaunchParam
-//        WalkNaviLaunchParam mParam = new WalkNaviLaunchParam().stPt(startPt).endPt(endPt);
-//        walkNavigateHelper.routePlanWithParams(mParam, new IWRoutePlanListener() {
-//            @Override
-//            public void onRoutePlanStart() {
-//                Log.e(TAG, "onRoutePlanStart: 算路开始");
-//            }
-//
-//            @Override
-//            public void onRoutePlanSuccess() {
-//                Log.e(TAG, "onRoutePlanSuccess: 算路成功");
-//                Intent intent = new Intent(MainActivity.this, WNaviGuideActivity.class);
-//                Log.e(TAG, "onRoutePlanSuccess: Intent初始化成功");
-//                startActivity(intent);
-//            }
-//
-//            @Override
-//            public void onRoutePlanFail(WalkRoutePlanError walkRoutePlanError) {
-//                Log.e(TAG, "onRoutePlanSuccess: 算路失败");
-//            }
-//        });
-//    }
+    private void routeWalkPlanWithParam(LatLng latLng, WalkNavigateHelper walkNavigateHelper) {
+        Log.e(TAG, "routeWalkPlanWithParam: 开始算路");
+        //起终点位置
+        LatLng startPt = myLoc;
+        LatLng endPt = latLng;
+        //构造WalkNaviLaunchParam
+        WalkNaviLaunchParam mParam = new WalkNaviLaunchParam().stPt(startPt).endPt(endPt);
+        walkNavigateHelper.routePlanWithParams(mParam, new IWRoutePlanListener() {
+            @Override
+            public void onRoutePlanStart() {
+                Log.e(TAG, "onRoutePlanStart: 算路开始");
+            }
 
-//    private OnGetPoiSearchResultListener listener = new OnGetPoiSearchResultListener() {
-//        @Override
-//        public void onGetPoiResult(PoiResult poiResult) {
-//            Log.e(TAG, "onGetPoiDetailResult: error" + poiResult.error);
-//            for (PoiInfo x : poiResult.getAllPoi()) {
-//                Log.e(TAG, "onGetPoiDetailResult: Address" + x.getAddress() + "Uid:" + x.getUid() + "Name: " + x.getName());
-//            }
-//        }
-//
-//        @Override
-//        public void onGetPoiDetailResult(PoiDetailSearchResult poiDetailSearchResult) {
-//            Log.e(TAG, "onGetPoiDetailResult: error" + poiDetailSearchResult.error);
-//            for (PoiDetailInfo x : poiDetailSearchResult.getPoiDetailInfoList()) {
-//                Log.e(TAG, "onGetPoiDetailResult: Address" + x.getAddress() + "Uid:" + x.getUid());
-//            }
-//        }
-//
-//        @Override
-//        public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
-//
-//        }
-//
-//        //废弃
-//        @Override
-//        public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
-//
-//        }
-//    };
+            @Override
+            public void onRoutePlanSuccess() {
+                Log.e(TAG, "onRoutePlanSuccess: 算路成功");
+                Intent intent = new Intent(MainActivity.this, WNaviGuideActivity.class);
+                Log.e(TAG, "onRoutePlanSuccess: Intent初始化成功");
+                startActivity(intent);
+            }
+
+            @Override
+            public void onRoutePlanFail(WalkRoutePlanError walkRoutePlanError) {
+                Log.e(TAG, "onRoutePlanSuccess: 算路失败");
+            }
+        });
+    }
+
+
     public class MyLocationListener extends BDAbstractLocationListener {
         @Override
         public void onReceiveLocation(BDLocation location) {
@@ -276,17 +248,6 @@ public class MainActivity extends AppCompatActivity {
         mLocationClient.start();
     }
 
-//    private void PoiSearch() {
-//        Log.e(TAG, "PoiSearch: " + 1);
-//        mPoiSearch = PoiSearch.newInstance();
-//        mPoiSearch.setOnGetPoiSearchResultListener(listener);
-//        Log.e(TAG, "PoiSearch: 2");
-//        mPoiSearch.searchInCity(new PoiCitySearchOption()
-//                .city("成都") //必填
-//                .keyword("电子科技大学") //必填
-//                .pageNum(10));
-//        Log.e(TAG, "PoiSearch: 3");
-//    }
     @Override
     protected void onResume() {
         //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
@@ -309,6 +270,35 @@ public class MainActivity extends AppCompatActivity {
         mMapView = null;
         //mPoiSearch.destroy();
         super.onDestroy();
+    }
+
+    private void showListDialog(final LatLng latLng) {
+        final String[] items = {"步行导航", "骑行导航"};
+        final AlertDialog.Builder listDialog =
+                new AlertDialog.Builder(MainActivity.this);
+        listDialog.setTitle("请选择导航模式");
+        listDialog.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        startWalkNavigation(latLng);
+                        break;
+                    case 1:
+                        startBikeNavigation(latLng);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        listDialog.setPositiveButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        listDialog.show();
     }
 
     @Override
@@ -334,5 +324,46 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    //    private void PoiSearch() {
+//        Log.e(TAG, "PoiSearch: " + 1);
+//        mPoiSearch = PoiSearch.newInstance();
+//        mPoiSearch.setOnGetPoiSearchResultListener(listener);
+//        Log.e(TAG, "PoiSearch: 2");
+//        mPoiSearch.searchInCity(new PoiCitySearchOption()
+//                .city("成都") //必填
+//                .keyword("电子科技大学") //必填
+//                .pageNum(10));
+//        Log.e(TAG, "PoiSearch: 3");
+//    }
+
+    //    private OnGetPoiSearchResultListener listener = new OnGetPoiSearchResultListener() {
+//        @Override
+//        public void onGetPoiResult(PoiResult poiResult) {
+//            Log.e(TAG, "onGetPoiDetailResult: error" + poiResult.error);
+//            for (PoiInfo x : poiResult.getAllPoi()) {
+//                Log.e(TAG, "onGetPoiDetailResult: Address" + x.getAddress() + "Uid:" + x.getUid() + "Name: " + x.getName());
+//            }
+//        }
+//
+//        @Override
+//        public void onGetPoiDetailResult(PoiDetailSearchResult poiDetailSearchResult) {
+//            Log.e(TAG, "onGetPoiDetailResult: error" + poiDetailSearchResult.error);
+//            for (PoiDetailInfo x : poiDetailSearchResult.getPoiDetailInfoList()) {
+//                Log.e(TAG, "onGetPoiDetailResult: Address" + x.getAddress() + "Uid:" + x.getUid());
+//            }
+//        }
+//
+//        @Override
+//        public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
+//
+//        }
+//
+//        //废弃
+//        @Override
+//        public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+//
+//        }
+//    };
 }
 
