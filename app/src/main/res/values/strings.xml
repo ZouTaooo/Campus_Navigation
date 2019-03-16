@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">校内导航系统</string>
+    <string name="search_hint">你想去的地点...</string>
 </resources>

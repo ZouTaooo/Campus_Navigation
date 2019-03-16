@@ -22,3 +22,10 @@
 -keep class com.baidu.** {*;}
 -keep class mapsdkvi.com.** {*;}
 -dontwarn com.baidu.**
+
+-ignorewarnings
+-libraryjars libs/ YoudaoBase.jar
+-libraryjars libs/ YoudaoVoicerecognize.jar
+
+-keep class com.youdao.sdk.ydtranslate.** { *;}
+-keep class com.youdao.voicerecognize.online.** { *;}

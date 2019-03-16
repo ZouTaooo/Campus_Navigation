@@ -24,7 +24,6 @@ public class MyApplication extends Application {
         //自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
         //包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。
         SDKInitializer.setCoordType(CoordType.BD09LL);
-
         mInstance = this;
         initEngineManager(this);
     }
@@ -47,7 +46,6 @@ public class MyApplication extends Application {
 
     // 常用事件监听，用来处理通常的网络错误，授权验证错误等
     static class MyGeneralListener implements MKGeneralListener {
-
         @Override
         public void onGetPermissionState(int iError) {
             // 非零值表示key验证未通过
@@ -58,8 +56,7 @@ public class MyApplication extends Application {
                         "请在AndoridManifest.xml中输入正确的授权Key,并检查您的网络连接是否正常！error: " + iError, Toast.LENGTH_LONG).show();
             } else {
                 Log.e(TAG, "onGetPermissionState: \"key认证成功\"");
-                Toast.makeText(MyApplication.getInstance().getApplicationContext(), "key认证成功", Toast.LENGTH_LONG)
-                        .show();
+//                Toast.makeText(MyApplication.getInstance().getApplicationContext(), "key认证成功", Toast.LENGTH_LONG).show();
             }
         }
     }
